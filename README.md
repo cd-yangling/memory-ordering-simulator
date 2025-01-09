@@ -1,7 +1,7 @@
 # 内存屏障模拟器
 
 ## 程序总体介绍
-本程序是参考 [pdf目录](https://github.com/cd-yangling/memory-ordering-simulator/pdf) 模仿硬件的行为实现的一个虚拟CPU。整个结构包括 处理器(processor),后端总线(bsb),L1缓存,前端总线(fsb),内存控制器。他们共同组合成一个完整的Soc。前端总线与真正的总线一样，具备总线仲裁，总线共享等特点。成为实现 MESI 协议的关键。总体系统的架构如下
+本程序是参考 [pdf目录](https://github.com/cd-yangling/memory-ordering-simulator/tree/main/pdf) 模仿硬件的行为实现的一个虚拟CPU。整个结构包括 处理器(processor),后端总线(bsb),L1缓存,前端总线(fsb),内存控制器。他们共同组合成一个完整的Soc。前端总线与真正的总线一样，具备总线仲裁，总线共享等特点。成为实现 MESI 协议的关键。总体系统的架构如下
 
  
              cpu                         cpu
@@ -25,9 +25,9 @@
 
 ## 程序目录说明
 
-[汇编器](https://github.com/cd-yangling/memory-ordering-simulator/assembler) 用于编译适合本虚拟CPU的汇编编译器
+[汇编器](https://github.com/cd-yangling/memory-ordering-simulator/tree/main/assembler) 用于编译适合本虚拟CPU的汇编编译器
 
-[example](https://github.com/cd-yangling/memory-ordering-simulator/example) 用于测试本虚拟CPU的样例汇编代码，包括基本测试，伪共享测试，（StoreLoad测试,StoreStroe测试） 尚未完成 StoreBuffer和Invalid Queue。基于MESI协议的处理情况下，目前是强内存序。
+[example](https://github.com/cd-yangling/memory-ordering-simulator/tree/main/example) 用于测试本虚拟CPU的样例汇编代码，包括基本测试，伪共享测试，（StoreLoad测试,StoreStroe测试） 尚未完成 StoreBuffer和Invalid Queue。基于MESI协议的处理情况下，目前是强内存序。
 
 ## 程序基本使用
 
