@@ -88,8 +88,12 @@ private:
 
 	std::uint32_t						mask;			//	所有的连接设备(Cache/Mem)的掩码
 
+#ifdef	HAVE_FAIR_BUS_ARBITRATION
 	std::queue<std::uint32_t>			mque;			//	等待总线控制权的等待队列
 	std::uint32_t						mbit;			//	获得总线控制权的 id 位图(防止代码重复申请)
+#else
+	std::uint32_t						mreq;			//	申请总线控制权的 id 位图(有申请意向,但是未得到)
+#endif
 
 	std::uint32_t						winner;			//	arbitration
 
@@ -119,6 +123,9 @@ public:
 public:
 	void acquire(const std::uint32_t id);	//	申请总线控制权
 	void release(const std::uint32_t id);	//	释放总线控制权
+#ifndef	HAVE_FAIR_BUS_ARBITRATION
+	bool tryrace(const std::uint32_t id);	//	竞争总线控制权
+#endif
 
 public:
 	const std::uint32_t & get_data_dirty(void) const { return data_dirty; }

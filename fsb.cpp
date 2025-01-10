@@ -56,7 +56,11 @@ fsb::fsb()
 
 	winner = none_winner;
 
+#ifdef	HAVE_FAIR_BUS_ARBITRATION
 	mbit = 0;
+#else
+	mreq = 0;
+#endif
 
 	work_ack = 0xFFFFFFFF;
 	data_dirty = 0;
@@ -105,6 +109,7 @@ void fsb::acquire(const std::uint32_t id)
 		if (id == winner)
 			system::oops(__FILE__, __LINE__);
 
+#ifdef	HAVE_FAIR_BUS_ARBITRATION
 		if (tst_bit(id, mbit))
 			system::oops(__FILE__, __LINE__);
 		else
@@ -120,6 +125,15 @@ void fsb::acquire(const std::uint32_t id)
 			mque.push(id);	//	进入 FIFO 的仲裁队列等待
 			notify = false;
 		}
+#else
+		if (tst_bit(id, mreq))
+			system::oops(__FILE__, __LINE__);	//	不可能发生情况,重复设置申请意向
+		else
+			set_bit(id, mreq);					//	设置有申请意向,但是未得到控制权
+
+		//	如果总线空闲, 通知所有的 snoop 进行总线竞争
+		notify = (none_winner == winner) ? true : false;
+#endif
 	}
 
 	if (notify)
@@ -140,6 +154,7 @@ void fsb::release(const std::uint32_t id)
 		if (id != winner)
 			system::oops(__FILE__, __LINE__);
 
+#ifdef	HAVE_FAIR_BUS_ARBITRATION
 		if (tst_bit(id, mbit))
 			clr_bit(id, mbit);
 		else
@@ -156,11 +171,44 @@ void fsb::release(const std::uint32_t id)
 			winner = mque.front();
 			mque.pop();
 		}
+#else
+		//	既然是主设备释放控制权,那么不应该还出现在意向位图中
+		if (tst_bit(id, mreq))
+			system::oops(__FILE__, __LINE__);
+
+		winner = none_winner;
+
+		//	如果有申请意向者, 考虑通知他们可以开始竞争了
+		notify = mreq ? true : false;
+#endif
 	}
 
 	if (notify)
 		slave.notify_all();
 }
+#ifndef	HAVE_FAIR_BUS_ARBITRATION
+bool fsb::tryrace(const std::uint32_t id)
+{
+	if (invalid_id(id))
+		system::oops(__FILE__, __LINE__);
+
+	{
+		std::unique_lock lck(cs);
+
+		//	没有申请意向, 这是不应该发生的
+		if (!tst_bit(id, mreq))
+			system::oops(__FILE__, __LINE__);
+
+		if (none_winner != winner)
+			return false;	//	竞争失败
+
+		winner = id;
+		clr_bit(id, mreq);
+
+		return true;
+	}
+}
+#endif
 
 void fsb::master_snoop(const std::uint32_t id) const
 {
@@ -192,10 +240,17 @@ bool fsb::slave_snoop(const std::uint32_t id) const
 			return false;	//	有总线请求尚未应答
 		}
 
+#ifdef	HAVE_FAIR_BUS_ARBITRATION
 		if (id == winner)
 		{
 			return true;	//	获得了总线控制权
 		}
+#else
+		if ((none_winner == winner) && tst_bit(id, mreq))
+		{
+			return true;	//	总线空闲,准备竞争
+		}
+#endif
 
 		slave.wait(lck);
 	}

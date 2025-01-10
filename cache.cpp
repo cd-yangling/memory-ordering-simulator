@@ -117,6 +117,20 @@ bool cache::fsb_slave_process(void)
 {
 	if (fbus->slave_snoop(sid))
 	{
+#ifndef	HAVE_FAIR_BUS_ARBITRATION
+		switch (work.get_state())
+		{
+			case cache_ccfsm_t::Reading:
+			case cache_ccfsm_t::Writing:
+				if (bus_tryrace())
+					break;
+				else
+					return false;	//	竞争失败
+
+			default:
+				system::oops(__FILE__, __LINE__);
+		}
+#endif
 		switch (work.get_state())
 		{
 			case cache_ccfsm_t::Reading:
@@ -467,6 +481,12 @@ void cache::bus_release(void) const
 {
 	fbus->release(sid);
 }
+#ifndef	HAVE_FAIR_BUS_ARBITRATION
+bool cache::bus_tryrace(void) const
+{
+	return fbus->tryrace(sid);
+}
+#endif
 
 bool cache::bus_write_back(void) const
 {

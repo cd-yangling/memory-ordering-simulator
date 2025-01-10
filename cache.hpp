@@ -113,6 +113,9 @@ private:
 private:
 	void bus_acquire(void) const;
 	void bus_release(void) const;
+#ifndef	HAVE_FAIR_BUS_ARBITRATION
+	bool bus_tryrace(void) const;
+#endif
 
 	bool bus_write_back(void) const;
 	void bus_read(bool first);
