@@ -1,12 +1,23 @@
 # 内存屏障模拟器
 
 ## 程序总体介绍
-本程序是参考 [pdf目录](https://github.com/cd-yangling/memory-ordering-simulator/tree/main/pdf) 模仿硬件的行为实现的一个虚拟CPU。整个结构包括 处理器(processor),后端总线(bsb),L1缓存,前端总线(fsb),内存控制器。他们共同组合成一个完整的Soc。前端总线与真正的总线一样，具备总线仲裁，总线共享等特点。成为实现 MESI 协议的关键。总体系统的架构如下
+本程序是参考 [pdf目录](https://github.com/cd-yangling/memory-ordering-simulator/tree/main/pdf) 模仿硬件的行为实现的一个虚拟CPU。
+整个结构包括 处理器(processor),后端总线(bsb),L1缓存(cache),前端总线(fsb),内存控制器(mem)。他们共同组合成一个完整的SoC。
+前端总线与真正的总线一样，具备总线仲裁，总线共享,总线独占等特点。成为实现 MESI 协议的关键。目前模拟器的总体系统的架构如下
 
- 
-             cpu                         cpu
-              |                           |
-              |                           |
+
+     +-----------------+         +-----------------+
+     |                 |         |                 |
+     |       cpu       |         |       cpu       |
+     |                 |         |                 |
+     +-----------------+         +-----------------+
+        /|\       |                 /|\       |
+         |        |                  |        |
+         |   +---------+             |   +---------+
+         |<--|store buf|             |<--|store buf|    back side bus
+         |   +---------+             |   +---------+
+         |        |                  |        | 
+         |       \|/                 |       \|/
      +-----------------+         +-----------------+
      |                 |         |                 |
      |   cache         |         |   cache         |
@@ -15,41 +26,132 @@
      |         | snoop |         |         | snoop |
      |         |       |         |         |       |
      +---------+-------+         +---------+-------+
-              |                            |
-              |                            |
-              +-------------bus------------+
+               |                           |
+               |                           |
+               |                           |
+         +-----|-----+               +-----|-----+
+         |invalid que|               |invalid que|
+         +-----|-----+               +-----|-----+
+               |                           |
+               |                           |
+               |                           |
+               +------------bus------------+           front side bus
                              |
                              |
                             mem
 
+## MESI 协议转换图
+
+```bash
+
+                                      +------------+                                            
+     +------------------------------->|            |-------------------------------+              
+     |                                |      M     |                               |              
+     |         +--------------------->|            |----------------------+        |              
+     |         |                      +------------+                      |        |              
+     |         |                      /|\                                 |        |              
+     |         |                       |                                  |        |              
+     |         |                       |                                  |        |              
+     |         |                     PrWr                                 |        |              
+     |         |                       |                            BusRd/Flush    |              
+     |    PrWr/BusUgr                  |                                  |        |              
+     |         |                       |                                  |        |              
+     |         |                      +------------+                      |        |              
+     |         |                      |            |                      |        |              
+     |         |      +-------------->|      E     |---------------+      |        |              
+     |         |      |               |    PrRd    |               |      |        |              
+     |         |      |               +------------+               |      |        |              
+     |         |      |                           |                |      |        |              
+     |         |      |                           |                |      |        |              
+     |         |      |                           |                |      |        |              
+ PrWr/BusRdX   |      |                         BusRd              |      |   BusRdX/Flush        
+     |         |      |                           |                |      |        |              
+     |         |      |                           |                |      |        |              
+     |         |      |                          \|/               |      |        |              
+     |         |      |               +------------+               |      |        |              
+     |         |      |               |            |               |      |        |              
+     |         +----------------------|      S     |<--------------|------+        |              
+     |                |               | PrRd/BusRd |               |               |              
+     |                |               +------------+               |               |              
+     |                |               /|\         |                |               |              
+     |                |                |          |                |               |              
+     |                |                |       BusRdX           BusRdX             |              
+     |           PrRd/BusRd       PrRd/BusRd      |                |               |              
+     |        (没有其他cache拥有)(其他cache拥有)  |                |               |              
+     |                |                |          |                |               |              
+     |                |                |         \|/               |               |              
+     |                |               +------------+               |               |              
+     |                +---------------|            |<--------------+               |              
+     |                                |      I     |                               |              
+     +--------------------------------|            |<------------------------------+              
+                                      +------------+                                              
+
+```
+
+
 
 ## 程序目录说明
 
-[汇编器](https://github.com/cd-yangling/memory-ordering-simulator/tree/main/assembler) 用于编译适合本虚拟CPU的汇编编译器
+[assembler](https://github.com/cd-yangling/memory-ordering-simulator/tree/main/assembler) 用于编译适合本虚拟CPU的汇编编译器
 
-[example](https://github.com/cd-yangling/memory-ordering-simulator/tree/main/example) 用于测试本虚拟CPU的样例汇编代码，包括基本测试，伪共享测试，（StoreLoad测试,StoreStroe测试） 尚未完成 StoreBuffer和Invalid Queue。基于MESI协议的处理情况下，目前是强内存序。
+[example](https://github.com/cd-yangling/memory-ordering-simulator/tree/main/example) 用于测试本虚拟CPU的样本汇编代码，包括基本样本，伪共享样本，共享交叉自增样本 (Store-Load 样本, Store-Stroe 样本) 
+
+## 计划添加特征
+
+* StoreBuffer
+* Invalid Queue
+
+目前完全按照 MESI协议 的状态迁移处理。因此整个虚拟CPU的允许环境是 强内存序。(内存完全一致性)
 
 ## 程序基本使用
 
-最低需要 c++20(主要里面使用一个信号量), 用于该虚拟机的汇编指令说明请参考 instruction.h
+最低需要 c++20 (主要里面使用一个信号量), 如果你需要自己编写测试样本，可以参考 [这里](https://github.com/cd-yangling/memory-ordering-simulator/blob/main/instruction.h) 有详细的介绍指令的格式与说明
 
+
+### 模拟器的编译
 ```bash
 git clone https://github.com/cd-yangling/memory-ordering-simulator
-cd memory-ordering-simulator
-mkdir build
-cd build
-cmake ..
-make
+cd memory-ordering-simulator && mkdir build && cd build && cmake .. && make
+```
 
-# 编译测试汇编代码
-mos_asm example/basic_test.asm                # 基本测试用例
-mos_asm example/cache_mesi_cross_inc.asm      # 测试MESI协议的正确性的交叉++的用例
-mos_asm example/false_sharing.asm             # 伪共享测试用例
-mos_asm example/single_mm.asm                 # 基本读/写用例
-mos_asm example/store_load.asm                # SL 用例
-mos_asm example/store_store.asm               # SS 用例
-# 编译的汇编代码最终默认是 a.out，mos_run运行即可, mos_run 也是默认打开a.out文件运行
-./mos_run 
+### 样本代码清单
+
+|文件名|描述|
+|-----|---|
+|[basic_test.asm](https://github.com/cd-yangling/memory-ordering-simulator/blob/main/example/basic_test.asm) |  基本测试样本 |
+|[cache_mesi_cross_inc.asm](https://github.com/cd-yangling/memory-ordering-simulator/blob/main/example/cache_mesi_cross_inc.asm) |  测试MESI协议的正确性的交叉++ 样本 |
+|[false_sharing.asm](https://github.com/cd-yangling/memory-ordering-simulator/blob/main/example/false_sharing.asm) |  伪共享测试样本 |
+|[single_mm.asm](https://github.com/cd-yangling/memory-ordering-simulator/blob/main/example/single_mm.asm) |  基本读/写样本 |
+|[store_load.asm](https://github.com/cd-yangling/memory-ordering-simulator/blob/main/example/store_load.asm) | Store-Load 样本 |
+|[store_store.asm](https://github.com/cd-yangling/memory-ordering-simulator/blob/main/example/store_store.asm) | Store-Store 样本 |
+
+### 编译测试汇编代码
+```bash
+for each in `ls ../example/*.asm`; do assembler/mos_asm ../example/$each -o `basename $each .asm`.bin;  done
+```
+
+### 编译器的帮助
+
+```bash
+assembler/mos_asm -h
+
+mos_asm [-o outfile] infile
+  -o   Set output file, if -o is not specified, the default is to put an executable file in a.out.
+  -d   Enable output final machine code for debugging .
+  -h   Print the help info and quit.
+  -v   Print the version and quit.
+```
+
+### 模拟器的帮助
+
+```bash
+mos_run [-0 infile | -1 infile | -2 infile | -3 infile]
+  -0   Set the instruction file to be processed by processor 0, Default file is a.out.
+  -1   Set the instruction file to be processed by processor 1, Default file is a.out.
+  -2   Set the instruction file to be processed by processor 2, Default file is a.out.
+  -3   Set the instruction file to be processed by processor 3, Default file is a.out.
+  -h   Print the help info and quit.
+  -v   Print the version and quit.
 ```
 
 
