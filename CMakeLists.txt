@@ -45,6 +45,8 @@ set(LIST_SOURCES
 	fsb.cpp
 	cache.cpp
 	memory.cpp
+	store_buffer.cpp
+	mob.cpp
 	processor.cpp
 	test/bsb_test.cpp
 	test/fsb_test.cpp
