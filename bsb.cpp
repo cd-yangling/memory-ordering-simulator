@@ -131,6 +131,50 @@ void bsb::PrWr(const pr_data_opt_t & addr, const pr_data_val_t & data)
 		work_rsp = false;
 	}
 }
+#if defined(HAVE_STORE_BUFFER)
+bool bsb::PrWr_async(const pr_data_opt_t & addr, const pr_data_val_t & data)
+{
+	bool result;
+
+	{
+		std::unique_lock lck(cs);
+
+		if (work_req || work_rsp || ctrl_bus != bsb_control_t::None)
+		{
+			system::oops(__FILE__, __LINE__);
+		}
+
+		ctrl_bus = bsb_control_t::PrWr_async;
+		addr_bus = addr;
+		data_bus = data;
+
+		work_req = true;
+	}
+
+	slave.notify_one();
+
+	{
+		std::unique_lock lck(cs);
+
+		while (!work_rsp)
+		{
+			master.wait(lck);
+		}
+
+		if (work_req || bsb_control_t::PrWr_async != ctrl_bus)
+		{
+			system::oops(__FILE__, __LINE__);
+		}
+
+		ctrl_bus = bsb_control_t::None;
+
+		work_rsp = false;
+		result = write_hit;
+	}
+
+	return result;
+}
+#endif	//	HAVE_STORE_BUFFER
 
 void bsb::PrXX_wait(void) const
 {
@@ -186,4 +230,23 @@ void bsb::PrWr_ack(void)
 
 	master.notify_one();
 }
+#if defined(HAVE_STORE_BUFFER)
+void bsb::PrWr_async_ack(bool wh)
+{
+	{
+		std::unique_lock lck(cs);
+
+		if (!work_req || work_rsp || bsb_control_t::PrWr_async != ctrl_bus)
+		{
+			system::oops(__FILE__, __LINE__);
+		}
+
+		work_req = false;
+		work_rsp = true;
+		write_hit= wh; 
+	}
+
+	master.notify_one();
+}
+#endif	//	HAVE_STORE_BUFFER
 

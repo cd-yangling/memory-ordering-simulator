@@ -58,6 +58,9 @@
 #if defined(HAVE_FSB_TEST)
 #include "test/fsb_test.hpp"
 #endif
+#if defined(HAVE_STORE_BUFFER)
+#include "mob.hpp"
+#endif	//	HAVE_STORE_BUFFER
 
 static void print_version(void)
 {
@@ -145,6 +148,12 @@ int main(int argc, char * argv[])
 		bsb bsb_obj_1;
 		bsb bsb_obj_2;
 		bsb bsb_obj_3;
+#if defined(HAVE_STORE_BUFFER)
+		mob mob_obj_0(&bsb_obj_0, 4);	//	SB 最大 4 个条目
+		mob mob_obj_1(&bsb_obj_1, 4);	//	SB 最大 4 个条目
+		mob mob_obj_2(&bsb_obj_2, 4);	//	SB 最大 4 个条目
+		mob mob_obj_3(&bsb_obj_3, 4);	//	SB 最大 4 个条目
+#endif	//	HAVE_STORE_BUFFER
 
 		fsb fsb_obj_X;
 
@@ -155,10 +164,17 @@ int main(int argc, char * argv[])
 		cache cache_obj_2(2, &bsb_obj_2, &fsb_obj_X);
 		cache cache_obj_3(3, &bsb_obj_3, &fsb_obj_X);
 
+#if defined(HAVE_STORE_BUFFER)
+		processor cpu_obj_0(0, &mob_obj_0, p0);
+		processor cpu_obj_1(1, &mob_obj_1, p1);
+		processor cpu_obj_2(2, &mob_obj_2, p2);
+		processor cpu_obj_3(3, &mob_obj_3, p3);
+#else
 		processor cpu_obj_0(0, &bsb_obj_0, p0);
 		processor cpu_obj_1(1, &bsb_obj_1, p1);
 		processor cpu_obj_2(2, &bsb_obj_2, p2);
 		processor cpu_obj_3(3, &bsb_obj_3, p3);
+#endif	//	HAVE_STORE_BUFFER
 
 		//	启动(内存工作线程)
 		std::thread t_memory(memory::snoop_thread, &mem_obj);
@@ -174,6 +190,13 @@ int main(int argc, char * argv[])
 		std::thread t_cache_11(cache::cache_thread, &cache_obj_1);
 		std::thread t_cache_21(cache::cache_thread, &cache_obj_2);
 		std::thread t_cache_31(cache::cache_thread, &cache_obj_3);
+#if defined(HAVE_STORE_BUFFER)
+		//	启动(mob侧的线程: 处理 mob 事务)
+		std::thread t_mob_0(mob::mob_thread, &mob_obj_0);
+		std::thread t_mob_1(mob::mob_thread, &mob_obj_1);
+		std::thread t_mob_2(mob::mob_thread, &mob_obj_2);
+		std::thread t_mob_3(mob::mob_thread, &mob_obj_3);
+#endif	//	HAVE_STORE_BUFFER
 
 		//	启动 processor 指令处理线程
 		std::thread t_cpu_0(processor::processor_thread, &cpu_obj_0);

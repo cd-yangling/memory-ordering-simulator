@@ -98,6 +98,9 @@ void processor::do_RMB_0(void)
 
 void processor::do_WMB_0(void)
 {
+#if defined(HAVE_STORE_BUFFER)
+	bbus->PrWMB();
+#endif	//	HAVE_STORE_BUFFER
 	++IR;
 }
 
@@ -138,12 +141,17 @@ void processor::do_JNE_2(const pr_oper_num_t & op1, const pr_oper_num_t & op2, c
 
 void processor::do_BUG_0(void)
 {
-	processor_exception(__FILE__, __LINE__, "Machine Check");
+	std::printf(
+		"The BUG instruction has been processed by processor %u"
+		"  (IR: 0x%zx R0: 0x%zx: R1: 0x%zx R2: 0x%zx R3: 0x%zx)",
+		pid, IR.to_number(), R0.to_number(), R1.to_number(), R2.to_number(), R3.to_number());
 }
 
 void processor::do_END_0(void)
 {
-	std::printf("well done !!! The program ends perfectly on processor: %u !!!\n", pid);
+	std::printf(
+		"The END instruction has been processed by processor %u",
+		pid);
 }
 
 void processor::do_SUP_1(const pr_oper_num_t & op1)
@@ -476,6 +484,7 @@ bool processor::exec_ins(void)
 void processor::processor_thread(processor * pr)
 {
 	bool running = true;
+	std::uint64_t nr_ins = 0;
 
 	auto t0 = system::get_count_tick();
 
@@ -484,12 +493,20 @@ void processor::processor_thread(processor * pr)
 		while (running)
 		{
 			running = pr->exec_ins();
+			nr_ins++;
+
+			if (0 == nr_ins % 100000)
+			{
+				auto t1 = system::get_count_tick();
+
+				std::printf("  ===> Processor: %u <%zu instruction be processed Total Consume %lu ms>\n", pr->pid, nr_ins, t1 - t0);
+			}
 		}
 	}
 
 	auto t1 = system::get_count_tick();
 
-	std::printf("Processor: %u Consume %lu ms\n", pr->pid, t1 - t0);
+	std::printf("  ===> Processor: %u <%zu instruction be processed Total Consume %lu ms>\n", pr->pid, nr_ins, t1 - t0);
 }
 
 bool processor::load_ins(void)

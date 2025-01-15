@@ -50,7 +50,15 @@
 #include "basic_type.cpp"
 
 //	back side bus 后端总线 CPU (主设备) ---> Cache (从设备)
-enum class bsb_control_t { None, PrRd, PrWr };
+enum class bsb_control_t
+{
+	None,
+	PrRd,
+	PrWr,
+#if defined(HAVE_STORE_BUFFER)
+	PrWr_async
+#endif	//	HAVE_STORE_BUFFER
+};
 
 class bsb
 {
@@ -65,6 +73,9 @@ private:
 
 	bool								work_req;		//	事务请求信号线
 	bool								work_rsp;		//	事务应答信号线
+#if defined(HAVE_STORE_BUFFER)
+	bool								write_hit;		//	是否 write_hit
+#endif	//	HAVE_STORE_BUFFER
 
 public:
 	bsb();
@@ -80,12 +91,18 @@ public:
 	//	提供给 Cpu 的操作方法
 	void PrRd(const pr_data_opt_t & addr, pr_data_val_t & data);
 	void PrWr(const pr_data_opt_t & addr, const pr_data_val_t & data);
+#if defined(HAVE_STORE_BUFFER)
+	bool PrWr_async(const pr_data_opt_t & addr, const pr_data_val_t & data);
+#endif	//	HAVE_STORE_BUFFER
 
 	//	提供给 Cache 的操作方法
 	void PrXX_wait(void) const;
 
 	void PrRd_ack(const pr_data_val_t & data);
 	void PrWr_ack(void);
+#if defined(HAVE_STORE_BUFFER)
+	void PrWr_async_ack(bool wh);
+#endif	//	HAVE_STORE_BUFFER
 };
 
 #endif	//	__MO_SIM_BSB_HEADER__

@@ -1,4 +1,4 @@
-;并行全局变量 ++, 测试 MESI 协议的正确性, 需要关闭 Store Buffer 和 Invalid Queue
+;并行全局变量 ++, 测试 MESI 协议的正确性
 ;4 个 CPU 分别对内存地址是 0xa0000000 这个变量进行++,
 ;1: CPU0 处理 if (v % 0 == 0) v++
 ;2: CPU1 处理 if (v % 1 == 1) v++

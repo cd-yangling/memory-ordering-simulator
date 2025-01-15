@@ -105,7 +105,7 @@ void mob::PrWr(const pr_data_opt_t & addr, const pr_data_val_t & data)
 		 */
 
 		//	如果没有写栅栏,尝试直接写 cache, 如果 cache hit.就直接返回了
-		if (wmb_map.empty() && 0/*bus->PrWr(addr, data, false*/)
+		if (wmb_map.empty() && bus->PrWr_async(addr, data))
 			return;
 
 		//	Store Buffer 最多只能有 max 个, 超过只能等待

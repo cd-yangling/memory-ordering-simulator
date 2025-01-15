@@ -108,6 +108,16 @@ void cache::bsb_slave_process(void)
 			}
 			break;
 
+#if defined(HAVE_STORE_BUFFER)
+		case bsb_control_t::PrWr_async:
+			{
+				if (!local_write(bbus->get_addr_bus(), bbus->get_data_bus()))
+					bbus->PrWr_async_ack(false);
+				else
+					bbus->PrWr_async_ack(true);
+			}
+			break;
+#endif	//	HAVE_STORE_BUFFER
 		default:
 			system::oops(__FILE__, __LINE__);
 	}

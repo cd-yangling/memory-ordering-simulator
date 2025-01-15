@@ -38,7 +38,7 @@ cpu1_retry:
     SUB    R2           R2           1            ; R2 = R2 - 1
     JMP    cpu1_retry;                            ; goto cpu1_retry
 cpu1_done:
-    wmb                                           ; 确保观察者能看见最新的 a
+    wmb                                           ; 确保观察者能看见最新的 b
     SUP    2                                      ; 告诉观察者自己结束了测试
     END
 

@@ -51,6 +51,9 @@
 #include "basic_type.cpp"
 #include "instruction.hpp"
 #include "bsb.hpp"
+#if defined(HAVE_STORE_BUFFER)
+#include "mob.hpp"
+#endif	//	HAVE_STORE_BUFFER
 
 class processor
 {
@@ -68,14 +71,22 @@ private:
 
 	std::array<const instruction *, 128>	ipl;
 
+#if defined(HAVE_STORE_BUFFER)
+	mob			*				bbus;	//	Store Buffer
+#else
 	bsb			*				bbus;	//	与 Cache 相连的后端总线
+#endif	//	HAVE_STORE_BUFFER
 	std::string					insf;	//	指令文件名
 
 public:
 	processor() = delete;
 	processor(const processor & ) = delete;
 	processor & operator=(const processor &) = delete;  
+#if defined(HAVE_STORE_BUFFER)
+	processor(const std::uint32_t i, mob * b, const std::string & p) : pid(i), bbus(b), insf(p)
+#else
 	processor(const std::uint32_t i, bsb * b, const std::string & p) : pid(i), bbus(b), insf(p)
+#endif	//	HAVE_STORE_BUFFER
 	{
 		ipl.fill(nullptr);
 	}
