@@ -98,14 +98,26 @@
 
 ## 计划添加特征
 
-* StoreBuffer
+* StoreBuffer (已完成)
 * Invalid Queue
-
-目前完全按照 MESI协议 的状态迁移处理。因此整个虚拟CPU的允许环境是 强内存序。(内存完全一致性)
 
 ## 程序基本使用
 
 最低需要 c++20 (主要里面使用一个信号量), 如果你需要自己编写测试样本，可以参考 [这里](https://github.com/cd-yangling/memory-ordering-simulator/blob/main/instruction.h) 有详细的介绍指令的格式与说明
+
+### 编译选项介绍
+
+* ENABLE_FAIR_BUS_ARBITRATION
+
+系统总线的仲裁方式,默认是抢占方式, 使用 `cmake -DENABLE_FAIR_BUS_ARBITRATION=ON` 将会使用 FIFO 的方式进行系统总线仲裁
+
+* ENABLE_STORE_BUFFER
+
+是否打开 StoreBuffer 的功能,默认是打开。 使用 `cmake -DENABLE_STORE_BUFFER=OFF` 将可以关闭 Store Buffer 的功能
+
+* ENABLE_INVALID_QUEUE
+
+暂未开发支持
 
 
 ### 模拟器的编译
@@ -125,7 +137,7 @@ cd memory-ordering-simulator && mkdir build && cd build && cmake .. && make
 |[store_load.asm](https://github.com/cd-yangling/memory-ordering-simulator/blob/main/example/store_load.asm) | Store-Load 样本 |
 |[store_store.asm](https://github.com/cd-yangling/memory-ordering-simulator/blob/main/example/store_store.asm) | Store-Store 样本 |
 
-### 编译测试汇编代码
+### 编译测试样本代码
 ```bash
 for each in `ls ../example/*.asm`; do assembler/mos_asm ../example/$each -o `basename $each .asm`.bin;  done
 ```
