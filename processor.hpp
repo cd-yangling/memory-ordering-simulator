@@ -126,6 +126,7 @@ private:
 	void do_MOV_2(const pr_oper_num_t & op1, const pr_oper_num_t & op2);
 	void do_RMB_0(void);
 	void do_WMB_0(void);
+	void do_MB_0(void);
 
 	//	跳转相关指令
 	void do_JMP_0(const pr_oper_num_t & op1);

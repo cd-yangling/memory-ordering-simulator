@@ -111,7 +111,7 @@ void mob::PrWr(const pr_data_opt_t & addr, const pr_data_val_t & data)
 		//	Store Buffer 最多只能有 max 个, 超过只能等待
 		while (dat_que.size() >= max)
 		{
-			cv_full.wait(lck);
+			cv_pr.wait(lck);
 		}
 
 		//	经过了 cv 条件等待, 那么是有可能存在竞争条件的.必须检查程序逻辑错误
@@ -125,7 +125,7 @@ void mob::PrWr(const pr_data_opt_t & addr, const pr_data_val_t & data)
 		dat_que.push_back(sbp);
 	}
 
-	cv_empty.notify_one();
+	cv_sb.notify_one();
 }
 
 void mob::PrWMB(void)
@@ -145,6 +145,18 @@ void mob::PrWMB(void)
 	}
 }
 
+void mob::PrMB(void)
+{
+	{
+		std::unique_lock lck(cs);
+
+		while (dat_que.size() != 0)
+		{
+			cv_pr.wait(lck);
+		}
+	}
+}
+
 void mob::process(void)
 {
 	{
@@ -152,7 +164,7 @@ void mob::process(void)
 
 		while (dat_que.size() == 0)
 		{
-			cv_empty.wait(lck);
+			cv_sb.wait(lck);
 		}
 	}
 
@@ -163,8 +175,8 @@ void mob::process(void)
 
 		std::unique_lock lck(cs);
 
-		if (dat_que.size() >= max)
-			notify = true;		//	可能有人因为 Store Buffer 满了而等待
+		if (dat_que.size() >= max || dat_que.size() == 1)
+			notify = true;		//	可能有人因为 Store Buffer 满了而等待/或者因为清空 SB 而等待
 
 		if (dat_que.empty())
 			system::oops(__FILE__, __LINE__);
@@ -186,7 +198,7 @@ void mob::process(void)
 		lck.unlock();
 
 		if (notify)
-			cv_full.notify_one();
+			cv_pr.notify_one();
 
 		delete sbp;
 	}

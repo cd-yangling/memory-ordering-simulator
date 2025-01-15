@@ -75,7 +75,7 @@ static void create_label(char *);
 	unsigned int reg_id;
 };
 
-%token OPC_LDR OPC_STR OPC_RMB OPC_WMB
+%token OPC_LDR OPC_STR OPC_RMB OPC_WMB OPC_MB
 %token OPC_MOV
 %token OPC_JMP OPC_JEQ OPC_JNE
 %token OPC_BUG OPC_END OPC_SUP OPC_SDW OPC_PID
@@ -110,6 +110,7 @@ instr
 	| str
 	| rmb
 	| wmb
+	| mb
 	| mov
 	| jmp
 	| jeq
@@ -148,6 +149,10 @@ rmb
 
 wmb
 	: OPC_WMB { create_instr(MOS_INS_WMB_0, 0, 0, 0, NULL); }
+	;
+
+mb
+	: OPC_MB { create_instr(MOS_INS_MB_0, 0, 0, 0, NULL); }
 	;
 
 mov

@@ -70,6 +70,7 @@ extern void yyerror(const char *str);
 "str"		{ return OPC_STR; }
 "rmb"		{ return OPC_RMB; }
 "wmb"		{ return OPC_WMB; }
+"mb"		{ return OPC_MB; }
 
 "mov"		{ return OPC_MOV; }
 

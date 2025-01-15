@@ -58,8 +58,8 @@ class mob
 {
 private:
 	mutable std::mutex							cs;
-	mutable std::condition_variable				cv_empty;
-	mutable std::condition_variable				cv_full;
+	mutable std::condition_variable				cv_pr;
+	mutable std::condition_variable				cv_sb;
 	const std::size_t							max;
 	std::deque<store_buffer*>					dat_que;
 	std::map<pr_data_opt_t, store_buffer*>		wmb_map;
@@ -83,6 +83,7 @@ public:
 	void PrRd(const pr_data_opt_t & addr, pr_data_val_t & data);
 	void PrWr(const pr_data_opt_t & addr, const pr_data_val_t & data);
 	void PrWMB(void);
+	void PrMB(void);
 };
 
 #endif	//	__MO_SIM_MOB_HEADER__
