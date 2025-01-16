@@ -25,7 +25,7 @@ cpu0_retry:
     SUB    R2           R2           1            ; R2 = R2 - 1
     JMP    cpu0_retry;                            ; goto cpu0_retry
 cpu0_done:
-    wmb                                           ; 确保观察者能看见最新的 a
+	mb     ;---强制内存同步: 确保观察者能看到正确的 a *(0xb0000004)
     SUP    2                                      ; 告诉观察者自己结束了测试
     END
 
@@ -38,7 +38,7 @@ cpu1_retry:
     SUB    R2           R2           1            ; R2 = R2 - 1
     JMP    cpu1_retry;                            ; goto cpu1_retry
 cpu1_done:
-    wmb                                           ; 确保观察者能看见最新的 b
+	mb     ;---强制内存同步: 确保观察者能看到正确的 b *(0xb0000008)
     SUP    2                                      ; 告诉观察者自己结束了测试
     END
 
@@ -47,7 +47,6 @@ cpu2_proc:
     SUP    1                                      ; 告诉 CPU1 可以开始运行了
     SDW    2                                      ; 等待 CPU 0/CPU 1 结束
     SDW    2                                      ; 等待 CPU 0/CPU 1 结束
-    rmb                                           ; 确保 Cpu0/Cpu1 能看到正确的 a 和 b
     LDR    R3           [0xb0000004]              ; R3 = a
     JNE    failed       R3           R2           ; if (R3 != R2) goto failed;
     LDR    R3           [0xb0000008]              ; R3 = b
