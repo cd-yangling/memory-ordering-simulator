@@ -293,11 +293,11 @@ void cache::slave_on_BusUgr(void)
 				break;
 
 			case cache_state_t::MESI_CACHE_E:
-				cl->set_state(cache_state_t::MESI_CACHE_I);
+				system::oops(__FILE__, __LINE__);
 				break;
 
 			case cache_state_t::MESI_CACHE_M:
-				cl->set_state(cache_state_t::MESI_CACHE_I);
+				system::oops(__FILE__, __LINE__);
 				break;
 
 			default:
