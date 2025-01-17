@@ -240,9 +240,6 @@ void cache::slave_on_BusRd(void)
 		if (nullptr == cl)
 			break;
 
-#if defined(WITH_INVALID_QUEUE)
-#endif	//	WITH_INVALID_QUEUE
-
 		switch (cl->get_state())
 		{
 			case cache_state_t::MESI_CACHE_I:
@@ -286,9 +283,6 @@ void cache::slave_on_BusUgr(void)
 		if (nullptr == cl)
 			break;
 
-#if defined(WITH_INVALID_QUEUE)
-#endif	//	WITH_INVALID_QUEUE
-
 		switch (cl->get_state())
 		{
 			case cache_state_t::MESI_CACHE_I:
@@ -329,9 +323,6 @@ void cache::slave_on_BusRdX(void)
 
 		if (nullptr == cl)
 			break;
-
-#if defined(WITH_INVALID_QUEUE)
-#endif	//	WITH_INVALID_QUEUE
 
 		switch (cl->get_state())
 		{
@@ -523,10 +514,6 @@ bool cache::bus_write_back(void) const
 			system::oops(__FILE__, __LINE__);
 	}
 
-#if defined(WITH_INVALID_QUEUE)
-		/*	这里需要处理 Invalid Queue 的事务*/
-#endif	//	WITH_INVALID_QUEUE
-
 	fbus->Flush(sid, cl->get_tag(), cl->get_dat());
 
 	return true;
@@ -539,6 +526,8 @@ void cache::bus_read(bool first)
 		return;
 	}
 
+	std::unique_lock lck(cs);
+
 	cache_line * cl = set.ref_cache_line(work.get_maddr(), false);
 
 	if (nullptr == cl)
@@ -549,6 +538,8 @@ void cache::bus_read(bool first)
 		cl->set_tag(work.get_maddr());
 		cl->set_state(cache_state_t::MESI_CACHE_I);
 	}
+
+	lck.unlock();
 
 	switch (cl->get_state())
 	{
@@ -569,6 +560,8 @@ void cache::bus_write(bool first)
 		return;
 	}
 
+	std::unique_lock lck(cs);
+
 	//	注意: 这里需要根据 缓存行的状态 来发送 RdX 还是 X 总线信号
 	//	实际上, 对于 MESI 协议的这2个区别,目前我也没有真正理解透彻
 	//	目前我理解的是这样可以借用 snoop 来接力 FlushOpt 操作,可以
@@ -584,6 +577,8 @@ void cache::bus_write(bool first)
 		cl->set_state(cache_state_t::MESI_CACHE_I);
 	}
 
+	lck.unlock();
+
 	switch (cl->get_state())
 	{
 		case cache_state_t::MESI_CACHE_I:
@@ -591,11 +586,7 @@ void cache::bus_write(bool first)
 			break;
 
 		case cache_state_t::MESI_CACHE_S:
-#if defined(WITH_INVALID_QUEUE)
-			/*	这里需要处理 Invalid Queue 的事务*/
-#endif	//	WITH_INVALID_QUEUE
-
-		fbus->BusUgr(sid, cl->get_tag());
+			fbus->BusUgr(sid, cl->get_tag());
 			break;
 
 		default:
