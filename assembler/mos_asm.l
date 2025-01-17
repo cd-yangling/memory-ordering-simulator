@@ -71,6 +71,8 @@ extern void yyerror(const char *str);
 "rmb"		{ return OPC_RMB; }
 "wmb"		{ return OPC_WMB; }
 "mb"		{ return OPC_MB; }
+"iqf"		{ return OPC_IQF; }
+"sbf"		{ return OPC_SBF; }
 
 "mov"		{ return OPC_MOV; }
 

@@ -72,7 +72,9 @@
  * STR      [num]    REG               ;*num = REG
  * RMB                                 ; 读内存栅栏(确保读顺序)
  * WMB                                 ; 写内存栅栏(确保写顺序)
- * MB                                  ; 读写内存栅栏(确保读写顺序)
+ * MB                                  ; 读写内存栅栏(确保读写顺序,同时确保可见性)
+ * IQF                                 ; 读内存栅栏(确保读顺序,同时确保可见性)
+ * SBF                                 ; 写内存栅栏(确保写顺序,同时确保可见性)
  *
  * b: 传输相关指令
  *
@@ -128,6 +130,8 @@ extern "C" {
 #define	MOS_INS_RMB_0		(0x000a0300)
 #define	MOS_INS_WMB_0		(0x000a0400)
 #define	MOS_INS_MB_0		(0x000a0500)
+#define	MOS_INS_IQF_0		(0x000a0600)
+#define	MOS_INS_SBF_0		(0x000a0700)
 
 #define	MOS_INS_MOV_1		(0x000b0101)
 #define	MOS_INS_MOV_2		(0x000b0102)

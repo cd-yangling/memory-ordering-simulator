@@ -84,6 +84,7 @@ public:
 	void PrWr(const pr_data_opt_t & addr, const pr_data_val_t & data);
 	void PrWMB(void);
 	void PrMB(void);
+	void PrSBF(void);
 };
 
 #endif	//	__MO_SIM_MOB_HEADER__

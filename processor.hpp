@@ -127,6 +127,8 @@ private:
 	void do_RMB_0(void);
 	void do_WMB_0(void);
 	void do_MB_0(void);
+	void do_IQF_0(void);
+	void do_SBF_0(void);
 
 	//	跳转相关指令
 	void do_JMP_0(const pr_oper_num_t & op1);

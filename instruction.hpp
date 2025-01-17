@@ -55,6 +55,8 @@ enum class instruction_t
 	RMB_0	= MOS_INS_RMB_0,
 	WMB_0	= MOS_INS_WMB_0,
 	MB_0	= MOS_INS_MB_0,
+	IQF_0	= MOS_INS_IQF_0,
+	SBF_0	= MOS_INS_SBF_0,
 
 	MOV_1	= MOS_INS_MOV_1,
 	MOV_2	= MOS_INS_MOV_2,

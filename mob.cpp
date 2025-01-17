@@ -157,6 +157,18 @@ void mob::PrMB(void)
 	}
 }
 
+void mob::PrSBF(void)
+{
+	{
+		std::unique_lock lck(cs);
+
+		while (dat_que.size() != 0)
+		{
+			cv_pr.wait(lck);
+		}
+	}
+}
+
 void mob::process(void)
 {
 	{

@@ -112,6 +112,19 @@ void processor::do_MB_0(void)
 	++IR;
 }
 
+void processor::do_IQF_0(void)
+{
+	++IR;
+}
+
+void processor::do_SBF_0(void)
+{
+#if defined(HAVE_STORE_BUFFER)
+	bbus->PrSBF();
+#endif	//	HAVE_STORE_BUFFER
+	++IR;
+}
+
 void processor::do_MOV_1(const pr_oper_num_t & op1, const pr_oper_num_t & op2)
 {
 	reg_addressing(op1) = op2, ++IR;
@@ -365,6 +378,14 @@ bool processor::exec_ins(void)
 
 		case instruction_t::MB_0:
 			do_MB_0();
+			return true;
+
+		case instruction_t::IQF_0:
+			do_IQF_0();
+			return true;
+
+		case instruction_t::SBF_0:
+			do_SBF_0();
 			return true;
 
 		case instruction_t::MOV_1:
