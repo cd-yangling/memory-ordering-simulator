@@ -145,6 +145,14 @@ str
 	: OPC_STR '[' number ']' reg_id { create_instr(MOS_INS_STR_3, $3, $5, 0, NULL); }
 	;
 
+ldr
+	: OPC_LDR reg_id '[' reg_id ']' { create_instr(MOS_INS_LDR_4, $2, $4, 0, NULL); }
+	;
+
+str
+	: OPC_STR '[' reg_id ']' reg_id { create_instr(MOS_INS_STR_4, $3, $5, 0, NULL); }
+	;
+
 rmb
 	: OPC_RMB { create_instr(MOS_INS_RMB_0, 0, 0, 0, NULL); }
 	;

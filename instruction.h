@@ -69,7 +69,9 @@
  * a: 内存相关指令
  *
  * LDR      REG      [num]             ;REG = *num
+ * LDR      REG      [REG]             ;REG = *REG
  * STR      [num]    REG               ;*num = REG
+ * STR      [REG]    REG               ;*REG = REG
  * RMB                                 ; 读内存栅栏(确保读顺序)
  * WMB                                 ; 写内存栅栏(确保写顺序)
  * MB                                  ; 读写内存栅栏(确保读写顺序,同时确保可见性)
@@ -127,6 +129,8 @@ extern "C" {
 //	指令代码定义
 #define	MOS_INS_LDR_3		(0x000a0103)
 #define	MOS_INS_STR_3		(0x000a0203)
+#define	MOS_INS_LDR_4		(0x000a0104)
+#define	MOS_INS_STR_4		(0x000a0204)
 #define	MOS_INS_RMB_0		(0x000a0300)
 #define	MOS_INS_WMB_0		(0x000a0400)
 #define	MOS_INS_MB_0		(0x000a0500)

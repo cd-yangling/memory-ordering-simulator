@@ -52,6 +52,8 @@ enum class instruction_t
 {
 	LDR_3	= MOS_INS_LDR_3,
 	STR_3	= MOS_INS_STR_3,
+	LDR_4	= MOS_INS_LDR_4,
+	STR_4	= MOS_INS_STR_4,
 	RMB_0	= MOS_INS_RMB_0,
 	WMB_0	= MOS_INS_WMB_0,
 	MB_0	= MOS_INS_MB_0,

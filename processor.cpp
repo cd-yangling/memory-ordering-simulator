@@ -91,6 +91,16 @@ void processor::do_STR_3(const pr_oper_num_t & op1, const pr_oper_num_t & op2)
 		bbus->PrWr(op1.to_number() >> 2, reg_addressing(op2)), ++IR;
 }
 
+void processor::do_LDR_4(const pr_oper_num_t & op1, const pr_oper_num_t & op2)
+{
+	do_LDR_3(op1, reg_addressing(op2));
+}
+
+void processor::do_STR_4(const pr_oper_num_t & op1, const pr_oper_num_t & op2)
+{
+	do_STR_3(reg_addressing(op1), op2);
+}
+
 void processor::do_RMB_0(void)
 {
 	++IR;
@@ -366,6 +376,14 @@ bool processor::exec_ins(void)
 
 		case instruction_t::STR_3:
 			do_STR_3(ins->get_op1(), ins->get_op2());
+			return true;
+
+		case instruction_t::LDR_4:
+			do_LDR_4(ins->get_op1(), ins->get_op2());
+			return true;
+
+		case instruction_t::STR_4:
+			do_STR_4(ins->get_op1(), ins->get_op2());
 			return true;
 
 		case instruction_t::RMB_0:

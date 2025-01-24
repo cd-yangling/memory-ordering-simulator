@@ -120,6 +120,8 @@ private:
 	//	内存相关指令
 	void do_LDR_3(const pr_oper_num_t & op1, const pr_oper_num_t & op2);
 	void do_STR_3(const pr_oper_num_t & op1, const pr_oper_num_t & op2);
+	void do_LDR_4(const pr_oper_num_t & op1, const pr_oper_num_t & op2);
+	void do_STR_4(const pr_oper_num_t & op1, const pr_oper_num_t & op2);
 
 	//	传输相关指令
 	void do_MOV_1(const pr_oper_num_t & op1, const pr_oper_num_t & op2);
