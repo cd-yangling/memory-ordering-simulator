@@ -503,9 +503,10 @@ bool cache::bus_write_back(void) const
 	switch (cl->get_state())
 	{
 		case cache_state_t::MESI_CACHE_I:
+			return false;	//	不需要写回
 		case cache_state_t::MESI_CACHE_S:
 		case cache_state_t::MESI_CACHE_E:
-			return false;	//	不需要写回
+			break;
 
 		case cache_state_t::MESI_CACHE_M:
 			break;

@@ -137,6 +137,7 @@ cd memory-ordering-simulator && mkdir build && cd build && cmake .. && make
 |[store_load.asm](https://github.com/cd-yangling/memory-ordering-simulator/blob/main/example/store_load.asm) | Store-Load 样本 |
 |[store_store.asm](https://github.com/cd-yangling/memory-ordering-simulator/blob/main/example/store_store.asm) | Store-Store 样本 |
 |[peterson.asm](https://github.com/cd-yangling/memory-ordering-simulator/blob/main/example/peterson.asm) | peterson算法 样本 |
+|[fifo.asm](https://github.com/cd-yangling/memory-ordering-simulator/blob/main/example/fifo.asm) | fifo算法(单生产者/单消费者) 样本 |
 
 ### 编译测试样本代码
 ```bash
