@@ -145,6 +145,7 @@ private:
 	void do_SUP_1(const pr_oper_num_t & op1);
 	void do_SDW_1(const pr_oper_num_t & op1);
 	void do_PID_2(const pr_oper_num_t & op1);
+	void do_DRV_0(void);
 
 	//	逻辑运算指令
 	void do_ADD_0(const pr_oper_num_t & op1, const pr_oper_num_t & op2, const pr_oper_num_t & op3);

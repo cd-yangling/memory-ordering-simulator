@@ -75,7 +75,7 @@ static void create_label(char *);
 	unsigned int reg_id;
 };
 
-%token OPC_LDR OPC_STR OPC_RMB OPC_WMB OPC_MB OPC_IQF OPC_SBF
+%token OPC_LDR OPC_STR OPC_RMB OPC_WMB OPC_MB OPC_IQF OPC_SBF OPC_DRV
 %token OPC_MOV
 %token OPC_JMP OPC_JEQ OPC_JNE
 %token OPC_BUG OPC_END OPC_SUP OPC_SDW OPC_PID
@@ -122,6 +122,7 @@ instr
 	| sup
 	| sdw
 	| pid
+	| drv
 	| add
 	| sub
 	| mul
@@ -210,6 +211,11 @@ sdw
 
 pid
 	: OPC_PID reg_id { create_instr(MOS_INS_PID_2, $2, 0, 0, NULL); }
+	;
+
+drv
+	: OPC_DRV { create_instr(MOS_INS_DRV_0, 0, 0, 0, NULL); }
+	;
 
 add
 	: OPC_ADD reg_id reg_id number { create_instr(MOS_INS_ADD_1, $2, $3, $4, NULL); }

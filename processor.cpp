@@ -218,6 +218,15 @@ void processor::do_PID_2(const pr_oper_num_t & op1)
 	reg_addressing(op1) = pid; ++IR;
 }
 
+void processor::do_DRV_0(void)
+{
+	std::printf(
+		"The DRV instruction has been processed by processor %u"
+		"  (IR: 0x%zx R0: 0x%zx: R1: 0x%zx R2: 0x%zx R3: 0x%zx)\n",
+		pid, IR.to_number(), R0.to_number(), R1.to_number(), R2.to_number(), R3.to_number());
+	++IR;
+}
+
 void processor::do_ADD_0(const pr_oper_num_t & op1, const pr_oper_num_t & op2, const pr_oper_num_t & op3)
 {
 	reg_addressing(op1) = op2 + op3; ++IR;
@@ -452,6 +461,10 @@ bool processor::exec_ins(void)
 
 		case instruction_t::PID_2:
 			do_PID_2(ins->get_op1());
+			return true;
+
+		case instruction_t::DRV_0:
+			do_DRV_0();
 			return true;
 
 		case instruction_t::ADD_1:

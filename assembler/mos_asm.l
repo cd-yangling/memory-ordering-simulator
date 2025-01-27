@@ -85,6 +85,7 @@ extern void yyerror(const char *str);
 "sup"		{ return OPC_SUP; }
 "sdw"		{ return OPC_SDW; }
 "pid"		{ return OPC_PID; }
+"drv"		{ return OPC_DRV; }
 
 "add"		{ return OPC_ADD; }
 "sub"		{ return OPC_SUB; }

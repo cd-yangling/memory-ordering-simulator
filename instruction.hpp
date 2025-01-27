@@ -74,6 +74,7 @@ enum class instruction_t
 	SUP_1	= MOS_INS_SUP_1,
 	SDW_1	= MOS_INS_SDW_1,
 	PID_2	= MOS_INS_PID_2,
+	DRV_0	= MOS_INS_DRV_0,
 
 	ADD_1	= MOS_INS_ADD_1,
 	ADD_2	= MOS_INS_ADD_2,

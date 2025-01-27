@@ -72,11 +72,11 @@
  * LDR      REG      [REG]             ;REG = *REG
  * STR      [num]    REG               ;*num = REG
  * STR      [REG]    REG               ;*REG = REG
- * RMB                                 ; 读内存栅栏(确保读顺序)
- * WMB                                 ; 写内存栅栏(确保写顺序)
- * MB                                  ; 读写内存栅栏(确保读写顺序,同时确保可见性)
- * IQF                                 ; 读内存栅栏(确保读顺序,同时确保可见性)
- * SBF                                 ; 写内存栅栏(确保写顺序,同时确保可见性)
+ * RMB                                 ;读内存栅栏(确保读顺序)
+ * WMB                                 ;写内存栅栏(确保写顺序)
+ * MB                                  ;读写内存栅栏(确保读写顺序,同时确保可见性)
+ * IQF                                 ;读内存栅栏(确保读顺序,同时确保可见性)
+ * SBF                                 ;写内存栅栏(确保写顺序,同时确保可见性)
  *
  * b: 传输相关指令
  *
@@ -98,6 +98,7 @@
  * SUP      num                        ;系统第 num 个信号量   Up 操作(主要用于构造并行运行测试环境)
  * SDW      num                        ;系统第 num 个信号量 Down 操作(主要用于构造并行运行测试环境)
  * PID      REG                        ;提取processor ID 到指定寄存器
+ * DRV                                 ;调试命令(打印所有寄存器的值)
  *
  * e: 逻辑运算指令
  *
@@ -151,6 +152,7 @@ extern "C" {
 #define	MOS_INS_SUP_1		(0x000d0301)
 #define	MOS_INS_SDW_1		(0x000d0401)
 #define	MOS_INS_PID_2		(0x000d0502)
+#define	MOS_INS_DRV_0		(0x000d0600)
 
 #define	MOS_INS_ADD_1		(0x000e0101)
 #define	MOS_INS_ADD_2		(0x000e0102)
